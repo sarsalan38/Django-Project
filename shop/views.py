@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import Product, Contact, Order, OrderUpdate
 from math import ceil
 import json
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
@@ -51,10 +52,12 @@ def contact(request):
         email = request.POST.get('email')
         phone = request.POST.get('phone')
         desc = request.POST.get('desc')
-        contact = Contact(name=name, email=email, phone=phone, desc=desc)
-        contact.save()
-        thank = True
-        return render(request, 'shop/contact.html', {'thank':thank})
+        if len(name) <= 2 or len(email) <= 4 or len(phone) < 10 or len(desc) < 4:
+            messages.error(request, "Please fill the form correctly")
+        else:
+            contact = Contact(name=name, email=email, phone=phone, desc=desc)
+            contact.save()
+            messages.success(request, "Your form has been submitted")
     return render(request, 'shop/contact.html')
 
 def tracker(request):
